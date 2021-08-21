@@ -1,0 +1,26 @@
+{
+  "name": "quiccasa",
+  "version": "0.0.2",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint index.js",
+    "deploy": "eslint index.js components/*.js && serverless deploy",
+    "deploy1": "eslint index.js components/*.js && serverless deploy --function",
+    "deploy:debug": "eslint index.js components/*.js && SLS_DEBUG=* serverless deploy",
+    "deploy1:debug": "eslint index.js components/*.js && SLS_DEBUG=* serverless deploy --function",
+    "invoke": "serverless invoke local --function",
+    "test:valid": "SLS_DEBUG=* serverless invoke --path test/valid.json --function",
+    "test:invalid": "SLS_DEBUG=* serverless invoke --path test/invalid.json --function",
+    "modclean": "modclean -n default:safe,default:caution -r"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cheerio": "^1.0.0-rc.5",
+    "modclean": "^3.0.0-beta.1",
+    "serverless": "^2.55.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-plugin-react": "^7.24.0"
+  }
+}

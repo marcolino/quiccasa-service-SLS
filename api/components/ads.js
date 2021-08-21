@@ -1,0 +1,355 @@
+'use strict';
+
+const request = require("axios");
+const cheerio = require("cheerio");
+const config = require("../config");
+const { formatMoneyNoDecimals } = require("./utils");
+
+/**
+ * Scrape all ads from provider's search results
+ */
+ module.exports.adsScrape = async (searchParameters) => {
+  const ads = [];
+  // TODO: build url from search parameters
+  //let url = "https://www.immobiliare.it/vendita-case/torino/?criterio=rilevanza&prezzoMinimo=280000&prezzoMassimo=400000&superficieMinima=80&superficieMassima=140&idMZona[]=175&idMZona[]=176&idMZona[]=184&idMZona[]=10407";
+  let url = "https://www.immobiliare.it/vendita-case/rivoli/?criterio=rilevanza&prezzoMinimo=240000&prezzoMassimo=380000&superficieMinima=80&superficieMassima=140";
+  //let n = 0;
+  do {
+    let response = null;
+    try {
+      response = await request(url);
+      //console.log('response.data:', response.data);
+    } catch(err) {
+      console.error(`error fetching data from url ${url}:`, err);
+      return []; // TODO: review error handling...
+    }
+
+    const $ = cheerio.load(response.data);
+    const elements = $("li.nd-list__item.in-realEstateResults__item");
+
+    // iterate over the ads
+    elements.each((index, el) => { // process the single ad
+      const ad = {};
+      const elTitle = $(el).find("a.in-card__title")[0];
+      ad.url = $(elTitle).attr("href").trim();
+      ad.title = $(elTitle).attr("title").trim();
+      const titleArray = ad.title.split(",");
+      if (titleArray.length > 1) {
+        ad.titleStrict = titleArray.slice(0, -2).join(",").trim() || titleArray.slice(0, -1).join(",").trim();
+        ad.zone = titleArray[titleArray.length-2].trim();
+        ad.city = titleArray[titleArray.length-1].trim();
+      } else {
+        ad.titleStrict = ad.title;
+        ad.zone = "";
+        ad.city = "";
+      }
+
+      const elCarouselFirstImage = $(el).find("img.nd-ratio__img")[0];
+      if (elCarouselFirstImage) { // found first carousel item
+        ad.image = $(elCarouselFirstImage).attr("src");
+      } else { // TODO: handle no carousel images !
+        console.log('no carousel images!');
+      }
+
+      const info = $(el).find("li.nd-list__item.in-feat__item");
+      info.each((i, el1) => {
+        const text = $(el1).text().trim();
+        switch (true) {
+          case /€/.test(text):
+            ad.price = text.trim();
+            break;
+          case /^.*local[ei]$/.test(text):
+            ad.rooms = text.replace(/local[ei]/, "").trim();
+            break;
+          case /^.*m²superficie$/.test(text):
+            ad.surface = text.replace(/m²superficie/, "").trim();
+            break;
+          case /^.*bagn[oi]$/.test(text):
+            ad.bathrooms = text.replace(/bagn[oi]/, "").trim();
+            break;
+          case /^.*piano$/.test(text):
+            ad.floor = text.replace(/piano/, "").trim();
+            break;
+          case /^.*tipologi[ae]$/.test(text):
+            ad.types = text.replace(/tipologi[ae]/, "").trim();
+            break;
+          default:
+            if (text) {
+              console.warn("unforeseen ad text:", text);
+            }
+            break;
+        }
+      });
+      const agencyLogoImg = $(el).find("img.nd-figure__content.nd-ratio__img");
+      ad.agencyLogoImg = $(agencyLogoImg).attr("src");
+
+      //++n;
+
+      const accept =
+        !searchParameters.blacklist.agencyes.some(a => {
+          const re = new RegExp(a.logoImgPattern);
+          return ad.agencyLogoImg && ad.agencyLogoImg.match(re);
+        })
+      ;
+
+      //console.log('ad:', ad);
+      if (accept) ads.push(ad);
+    });
+
+    const elNextPage = $("a[title='Pagina successiva']");
+    if (elNextPage) { // next page link found
+      url = $(elNextPage).attr('href');
+    } else { // no next page link found
+      url = null; // finish pages loop
+    }
+
+  } while (url);
+
+  return ads;
+};
+
+/**
+ * Scrape a single ad
+ */
+ module.exports.adScrape = async(ad) => {
+  let url = ad.url;
+  let response = null;
+  try {
+    response = await request(url);
+  } catch(err) {
+    console.error(`error fetching data from url ${url}:`, err); // TODO: review error handling...
+    return ad;
+  }
+
+  const $ = cheerio.load(response.data);
+  ad.missing = $("body");
+  ad.missing = ad.missing ? ad.missing.text().match(/L'annuncio non è più presente/is) : true;
+
+  ad.description = $("body").find("div.im-description__text");
+  ad.description = ad.description ? ad.description.text().trim() : undefined;
+
+  ad.phone = $("body").find("a.im-lead__phone:nth-child(2)").attr("href");
+  ad.phone = ad.phone ? ad.phone.replace(/tel:/, "").trim() : undefined;
+
+  return ad;
+}
+
+/**
+ * Compare old and new lists of ads
+ */
+module.exports.adsCompare = (o, n) => {
+  function comparer(other, key) {
+    return current => {
+      return other.filter(other => {
+        return other[key] === current[key]
+      }).length === 0;
+    }
+  }
+
+  //const onlyInO = o.filter(comparer(n)); // only in old array elements (removed from listings)
+  const onlyInN = n.filter(comparer(o, 'url')); // only in new array elements (added to listings)
+
+  return onlyInN;
+};
+
+module.exports.adsEmailBodyFormat = (adsList, searchParameters) => {
+  const one = adsList.length <= 1;
+  // TODO: report search criteria name and contents too
+
+  const head = `
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="x-apple-disable-message-reformatting">
+    <title></title>
+    <!--[if mso]>
+    <style>
+      table {border-collapse:collapse;border-spacing:0;border:none;margin:0;}
+      div, td {padding:0;}
+      div {margin:0 !important;}
+    </style>
+    <noscript>
+      <xml>
+        <o:OfficeDocumentSettings>
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+      </xml>
+    </noscript>
+    <![endif]-->
+    <style>
+      table, td, div, h1, p {
+        font-family: Helvetica, Verdana, Arial, sans-serif;
+      }
+      @media screen and (max-width: 530px) {
+        .unsub {
+          display: block;
+          padding: 8px;
+          margin-top: 14px;
+          border-radius: 6px;
+          background-color: #555555;
+          text-decoration: none !important;
+          font-weight: bold;
+        }
+        .col-lge {
+          max-width: 100% !important;
+        }
+      }
+      @media screen and (min-width: 531px) {
+        .col-sml {
+          max-width: 45% !important;
+        }
+        .col-lge {
+          max-width: 55% !important;
+        }
+      }
+    </style>
+  </head>
+  <body style="margin:0;padding:0;word-spacing:normal;background-color:#939297;">
+    <div role="article" aria-roledescription="email" lang="en" style="text-size-adjust:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;background-color:#ffffff;old-background-color:#939297;">
+      <table role="presentation" style="width:100%;border:none;border-spacing:0;">
+        <tr>
+          <td align="center" style="padding:0;">
+            <!--[if mso]>
+            <table role="presentation" align="center" style="width:600px;"><tr><td>
+            <![endif]-->
+            <table role="presentation" style="width:94%;max-width:800px;border:none;border-spacing:0;text-align:left;font-family:Helvetica,Verdana,Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">
+              <tr>
+                <td style="padding:30px;background-color:#ffffff;">
+                  <p style="margin-top:0;margin-bottom:16px;text-decoration:none;">
+                    ${adsList.length} nuov${one ? 'o' : 'i'} annunc${one ? 'io' : 'i'} appena pubblicat${one ? 'o' : 'i'} su <b>immobiliare.it</b>
+                  </p>
+                </td>
+              </tr>
+
+              <!-- start new ads loop here -->
+  `;
+  /* 395 => 495, 145 => 245, 115 => 215 */
+  const body = adsList.map(ad => `
+              <tr>
+                <td style="padding:35px 30px 11px 30px;font-size:0;background-color:#ffffff;border-bottom:1px solid #f0f0f5;border-color:rgba(201,201,207,.35);">
+                  <!--[if mso]>
+                  <table role="presentation" width="100%"><tr><td style="width:245px;" align="left" valign="top">
+                  <![endif]-->
+                  <div class="col-sml" style="display:inline-block;width:100%;max-width:245px;vertical-align:top;text-align:left;font-family:Helvetica,Verdana,Arial,sans-serif;font-size:14px;color:#363636;">
+                    <a href="${ad.url}" style="text-decoration:none;">
+                      <img src="${ad.image}" width="215" alt="" style="width:90%;max-width:215px;">
+                    </a>
+                  </div>
+                  <!--[if mso]>
+                  </td><td style="width:495px;padding-bottom:20px;" valign="top">
+                  <![endif]-->
+                  <div class="col-lge" style="display:inline-block;width:100%;max-width:495px;vertical-align:top;margin-top:20px;padding-bottom:20px;font-family:Helvetica,Verdana,Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">
+                    ${ad.missing ? `
+                    <p style="font-size:18px;margin-top:0;margin-bottom:4px;color:darkred">
+                      <b><i>NON PIÚ PRESENTE!</i></b>
+                    </p>
+                    ` : ``}
+                    <p style="font-size:18px;margin-top:0;margin-bottom:4px;">
+                      ${ad.titleStrict}${ad.city ? (", " + ad.city) : ""}
+                    </p>
+                    <p style="font-size:14px;margin-top:0;margin-bottom:4px;">
+                      ${ad.zone/* || "&nbsp;"*/}
+                    </p>
+                    <p style="font-size:18px;margin-top:0;margin-bottom:6px;">
+                      ${ad.price}
+                    </p>
+                    <p style="font-size:14px;margin-top:0;margin-bottom:6px;">
+                      ${ad.surface} m² |
+                      ${ad.rooms} local${ad.rooms <= 1 ? 'e' : 'i'}
+                      ${ad.bathrooms ? " | " + ad.bathrooms + " bagn" + (ad.bathrooms <= 1 ? "o" : "i") : ""}
+                      ${ad.floor ? " | " + "piano " + ad.floor : ""}
+                    </p>
+                    <p style="font-size:12px;margin-top:0;margin-bottom:6px;_ine-height:0.99em">
+                      ${ad.description}
+                    </p>
+                    <p style="margin:0;margin-top:12px">
+                      <!--
+                      <a href="${ad.url}" style="background: #c21f00; text-decoration: none; padding: 10px 25px; color: #ffffff; border-radius: 4px; display:inline-block; mso-padding-alt:0;text-underline-color:#c21f00">
+                        <! --[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]- ->
+                        <span style="mso-text-raise:10pt;font-weight:bold;">
+                          🔍 Dettagli
+                        </span>
+                        <! --[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]- ->
+                      </a>
+                      -->
+                      <a href="tel:${ad.phone}" style="background: #c21f00; text-decoration: none; padding: 10px 25px; color: #ffffff; border-radius: 4px; display:inline-block; mso-padding-alt:0;text-underline-color:#c21f00">
+                        <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%;mso-text-raise:20pt">&nbsp;</i><![endif]-->
+                        <span style="mso-text-raise:10pt;font-weight:bold;">
+                          📞 Telefono
+                        </span>
+                        <!--[if mso]><i style="letter-spacing: 25px;mso-font-width:-100%">&nbsp;</i><![endif]-->
+                      </a>
+                    </p>
+                  </div>
+                  <!--[if mso]>
+                  </td></tr></table>
+                  <![endif]-->
+                </td>
+              </tr>
+  `).join('');
+  const foot = `
+              <!-- end new ads loop here -->
+              <tr>
+                <td style="padding:30px;background-color:#ffffff;">
+                  <p style="font-size:12px;font-style:italic;margin-top:0;margin-bottom:16px;text-decoration:none;">
+                    La tua ricerca: ${adsDescribeSearch(searchParameters)}.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:30px;text-align:center;font-size:12px;background-color:#333333;color:#bbbbbb;">
+                  <!--
+                  <p style="margin:0 0 8px 0;">
+                    <a href="http://www.facebook.com/" style="text-decoration:none;">
+                      <img src="https://assets.codepen.io/210284/facebook_1.png" width="40" height="40" alt="f" style="display:inline-block;color:#cccccc;">
+                    </a>
+                    <a href="http://www.twitter.com/" style="text-decoration:none;">
+                      <img src="https://assets.codepen.io/210284/twitter_1.png" width="40" height="40" alt="t" style="display:inline-block;color:#cccccc;">
+                    </a>
+                  </p>
+                  -->
+                  <p style="margin:0;font-size:14px;line-height:20px;">
+                    ${config.companyTitle}
+                    <br>
+                    <!--<a class="unsub" href="${/*config.endpointWebsite*/'REMOVEME'}unsubscribe.html" style="color:#cccccc;text-decoration:underline;">-->
+                    <a class="unsub" href="${config.endpoint}unsubscribe" style="color:#cccccc;text-decoration:underline;">
+                      Annulla la sottoscrizione
+                    </a>
+                  </p>
+                </td>
+              </tr>
+            </table>
+            <!--[if mso]>
+            </td></tr></table>
+            <![endif]-->
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
+  `;
+  return head + body + foot;
+};
+
+const adsDescribeSearch = (searchParameters) => {
+  let description = ``;
+  switch (true) {
+    case /vendita-case/.test(searchParameters.baseUrl):
+      description += `Case in vendita`;
+      break;
+    case /affitto-case/.test(searchParameters.baseUrl):
+      description += `Case in affitto`;
+      break;
+    default:
+      description += `tipologia di ricerca sconosciuta`;
+    }
+    description += ` ${searchParameters.city ? "a " + searchParameters.city : "in città sconosciuta"}`;
+    description += `${searchParameters.zones.length <= 0 ? "" : (" " + (searchParameters.zones.length === 1 ? "nella zona" : "nelle zone") + " ")}${searchParameters.zones.map(zid => zid[Object.keys(zid)[0]]).join("; ").replace(/; $/, "").trim()}`;
+    description += `, da ${formatMoneyNoDecimals(searchParameters.minPrice, config.locale, config.currency)} a ${formatMoneyNoDecimals(searchParameters.maxPrice, config.locale, config.currency)}`;
+    description += `, da ${searchParameters.minSurfaceMq} m² a ${searchParameters.maxSurfaceMq} m²`;
+    description += `, con un criterio di ${searchParameters.criterion}`;
+    return description;
+}

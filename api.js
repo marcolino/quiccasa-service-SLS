@@ -5,36 +5,32 @@ module.exports.unsubscribe = async (event) => {
 
   console.log('event:', event, typeof event);
   const username = event && event.queryStringParameters ? event.queryStringParameters.username : null;
+  
   if (!username) {
-    return {
-      statusCode: 400,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: //JSON.stringify(
-        {
-          message: `Username should be specified`,
-          input: event,
-        }
-      //),
-    };
+    return respond(400, { error: `Username should be specified` });
   }
 
-  return {
-    statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*' // TODO: do we really need this ?
-    },
-    body: JSON.stringify(
-      {
-        message: `You did successfully unsubscribe from ${serviceName}!`,
-        input: event,
-      },
-      null,
-      2
-    ),
-  };
+  // TODO: the real meat here...
+
+  return respond(200, { message: `You did successfully unsubscribe from ${serviceName}!` });
 
   // use this code if you don't use the http event with the LAMBDA-PROXY integration:
   // return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
 };
+
+const respond = (statusCode, response) => {
+  return {
+    statusCode,
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
+    body: JSON.stringify(
+      {
+        ...response,
+        //input: event,
+      },
+      null,
+      //2
+    ),
+  };
+}

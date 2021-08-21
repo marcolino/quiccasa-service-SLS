@@ -11,12 +11,12 @@ module.exports.submit = async (event) => {
       headers: {
         'Access-Control-Allow-Origin': '*'
       },
-      body: //JSON.stringify(
+      body: JSON.stringify(
         {
-          message: `Username should be specified`,
+          message: `_Username should be specified`,
           input: event,
         }
-      //),
+      ),
     };
   }
 

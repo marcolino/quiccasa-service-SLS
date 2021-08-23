@@ -17,3 +17,15 @@ https://aws.amazon.com/getting-started/hands-on/build-serverless-web-app-lambda-
 
 AWS Tutorial: Intro to using Lambda with the Serverless framework:
 https://www.thorntech.com/aws-tutorial-intro-using-lambda-serverless-framework/
+
+Routing traffic to an Amazon API Gateway API by using your domain name (no):
+https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-api-gateway.html
+
+How to set up a custom domain name for Lambda & API Gateway with Serverless:
+https://www.serverless.com/blog/serverless-api-gateway-domain
+
+Using Webpack 4 — A “really” quick start:
+https://medium.com/justfrontendthings/using-webpack-4-a-really-quick-start-under-4-minutes-61ff3fa9a2c8
+
+Serverless - Bundle Lambda Functions with Webpack Tree Shaking:
+https://www.antstack.io/blog/nodejs-lambda-bundling-tree-shaking-webpack/

@@ -24,8 +24,11 @@ https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-api-gateway
 How to set up a custom domain name for Lambda & API Gateway with Serverless:
 https://www.serverless.com/blog/serverless-api-gateway-domain
 
-Using Webpack 4 — A “really” quick start:
+Using Webpack 4 — A “really” quick start (no):
 https://medium.com/justfrontendthings/using-webpack-4-a-really-quick-start-under-4-minutes-61ff3fa9a2c8
 
-Serverless - Bundle Lambda Functions with Webpack Tree Shaking:
+Serverless - Bundle Lambda Functions with Webpack Tree Shaking (no):
 https://www.antstack.io/blog/nodejs-lambda-bundling-tree-shaking-webpack/
+
+Optimise your Lambda functions using Webpack:
+https://serverlessfirst.com/fff-webpacking-lambdas/

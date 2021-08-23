@@ -1,12 +1,14 @@
 service: quiccasa-service
 # app and org for use with dashboard.serverless.com
 app: quiccasa-service
-#org: sistemisolari.com
+#org: sistemisolarirossi
 
 # only deploy with a specific Serverless version
 frameworkVersion: '2'
 
 useDotenv: true
+
+configValidationMode: "error"
 
 provider:
   name: aws
@@ -41,10 +43,11 @@ provider:
 
 # packaging information
 package:
+  individually: true
   patterns:
     - '!private/**'
     - '!tmp/**'
-    - '!node_modules/**'
+    #- '!node_modules/**'
 
 functions:
   unsubscribe:
@@ -57,14 +60,21 @@ functions:
           method: get
           path: unsubscribe
 
-# CloudFormation resource templates
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+plugins:
+  - serverless-domain-manager
+  - serverless-webpack
+
+custom:
+  version: 1
+  domain:
+    dev: apidev.sistemisolari.com
+    prod: api.sistemisolari.com
+  customDomain:
+   #domainName: api.sistemisolari.com
+    domainName:  ${self:custom.domain.${self:provider.stage}}
+    basePath: "v${self:custom.version}"
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+
+  webpack:
+    includeModules: false

@@ -6,9 +6,8 @@ module.exports = {
   currency: "EUR",
   companyTitle: "Sistemi Solari ®",
   emailSenderAddress: "sistemisolari.quiccasa@gmail.com",
-  //emailRecipientAddresses: [ "marcosolari@gmail.com", "enrica.valenzano@gmail.com" ],
   emailRecipientAddresses: [ "marcosolari@gmail.com" ],
-  endpoint: "https://gfhwsqbvf1.execute-api.eu-west-1.amazonaws.com/dev/",
+  //endpoint: "https://gfhwsqbvf1.execute-api.eu-west-1.amazonaws.com/dev/",
   // endpoints: {
   //   crawl: "https://gfhwsqbvf1.execute-api.eu-west-1.amazonaws.com/dev/crawl", // TODO: to be read automatically from aws...
   //   subscribe: "https://gfhwsqbvf1.execute-api.eu-west-1.amazonaws.com/dev/subscribe", // TODO: to be read automatically from aws...

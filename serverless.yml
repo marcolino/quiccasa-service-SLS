@@ -60,6 +60,16 @@ functions:
           method: get
           path: unsubscribe
 
+  handler: api.getUserByAttribute:
+    handler: api.getUserByAttribute
+    memorySize: 128 # MB, default is 1024 MB
+    timeout: 10 # seconds, default is 6 seconds
+    description: get Cognito user by attribute
+    events:
+      - http: 
+          method: get
+          path: getUserByAttribute
+
 plugins:
   - serverless-domain-manager
   - serverless-webpack

@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const config = require("../config");
 const aws = require("aws-sdk");
@@ -34,4 +34,4 @@ module.exports.sendEmail = async (
     console.error(`email not sent - error: ${err}`);
     return { error: err };
   }
-}
+};

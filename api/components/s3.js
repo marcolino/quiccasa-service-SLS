@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const config = require("../config");
 const aws = require("aws-sdk");
@@ -12,15 +12,15 @@ module.exports.putObjectToS3 = async (key, data) => {
     Bucket: config.bucket,
     Key: key,
     Body: JSON.stringify(data),
-  }
+  };
   try {
     const result = await s3.upload(params).promise();
-    //console.log('put object result:', result);
+    //console.log("put object result:", result);
     return result;
   } catch(err) {
     throw new Error(`error putting object to S3: ${err}`);
   }
-}
+};
 
 module.exports.getObjectFromS3 = async (key) => {
   const params = { 
@@ -30,16 +30,16 @@ module.exports.getObjectFromS3 = async (key) => {
   try {
     const result = await s3.getObject(params).promise();
     const data = await JSON.parse(result.Body.toString());
-    //console.log('get object result:', data);
+    //console.log("get object result:", data);
     return data;
   } catch(err) {
-    if (err.code === 'NoSuchKey') { // no problem, return empty array
+    if (err.code === "NoSuchKey") { // no problem, return empty array
       return [];
     } else {
       throw new Error(`error getting object from S3: ${err}`);
     }
   }
-}
+};
 
 module.exports.deleteObjectFromS3 = async (key) => {
   const params = {
@@ -51,4 +51,4 @@ module.exports.deleteObjectFromS3 = async (key) => {
   } catch(err) {
     throw new Error(`error deleting object from S3: ${err}`);
   }
-}
+};

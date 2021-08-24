@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const request = require("axios");
 const cheerio = require("cheerio");
@@ -8,7 +8,7 @@ const { formatMoneyNoDecimals } = require("./utils");
 /**
  * Scrape all ads from provider's search results
  */
- module.exports.adsScrape = async (searchParameters) => {
+module.exports.adsScrape = async (searchParameters) => {
   const ads = [];
   // TODO: build url from search parameters
   //let url = "https://www.immobiliare.it/vendita-case/torino/?criterio=rilevanza&prezzoMinimo=280000&prezzoMassimo=400000&superficieMinima=80&superficieMassima=140&idMZona[]=175&idMZona[]=176&idMZona[]=184&idMZona[]=10407";
@@ -18,7 +18,7 @@ const { formatMoneyNoDecimals } = require("./utils");
     let response = null;
     try {
       response = await request(url);
-      //console.log('response.data:', response.data);
+      //console.log("response.data:", response.data);
     } catch(err) {
       console.error(`error fetching data from url ${url}:`, err);
       return []; // TODO: review error handling...
@@ -48,36 +48,36 @@ const { formatMoneyNoDecimals } = require("./utils");
       if (elCarouselFirstImage) { // found first carousel item
         ad.image = $(elCarouselFirstImage).attr("src");
       } else { // TODO: handle no carousel images !
-        console.log('no carousel images!');
+        console.log("no carousel images!");
       }
 
       const info = $(el).find("li.nd-list__item.in-feat__item");
       info.each((i, el1) => {
         const text = $(el1).text().trim();
         switch (true) {
-          case /€/.test(text):
-            ad.price = text.trim();
-            break;
-          case /^.*local[ei]$/.test(text):
-            ad.rooms = text.replace(/local[ei]/, "").trim();
-            break;
-          case /^.*m²superficie$/.test(text):
-            ad.surface = text.replace(/m²superficie/, "").trim();
-            break;
-          case /^.*bagn[oi]$/.test(text):
-            ad.bathrooms = text.replace(/bagn[oi]/, "").trim();
-            break;
-          case /^.*piano$/.test(text):
-            ad.floor = text.replace(/piano/, "").trim();
-            break;
-          case /^.*tipologi[ae]$/.test(text):
-            ad.types = text.replace(/tipologi[ae]/, "").trim();
-            break;
-          default:
-            if (text) {
-              console.warn("unforeseen ad text:", text);
-            }
-            break;
+        case /€/.test(text):
+          ad.price = text.trim();
+          break;
+        case /^.*local[ei]$/.test(text):
+          ad.rooms = text.replace(/local[ei]/, "").trim();
+          break;
+        case /^.*m²superficie$/.test(text):
+          ad.surface = text.replace(/m²superficie/, "").trim();
+          break;
+        case /^.*bagn[oi]$/.test(text):
+          ad.bathrooms = text.replace(/bagn[oi]/, "").trim();
+          break;
+        case /^.*piano$/.test(text):
+          ad.floor = text.replace(/piano/, "").trim();
+          break;
+        case /^.*tipologi[ae]$/.test(text):
+          ad.types = text.replace(/tipologi[ae]/, "").trim();
+          break;
+        default:
+          if (text) {
+            console.warn("unforeseen ad text:", text);
+          }
+          break;
         }
       });
       const agencyLogoImg = $(el).find("img.nd-figure__content.nd-ratio__img");
@@ -92,13 +92,13 @@ const { formatMoneyNoDecimals } = require("./utils");
         })
       ;
 
-      //console.log('ad:', ad);
+      //console.log("ad:", ad);
       if (accept) ads.push(ad);
     });
 
     const elNextPage = $("a[title='Pagina successiva']");
     if (elNextPage) { // next page link found
-      url = $(elNextPage).attr('href');
+      url = $(elNextPage).attr("href");
     } else { // no next page link found
       url = null; // finish pages loop
     }
@@ -111,7 +111,7 @@ const { formatMoneyNoDecimals } = require("./utils");
 /**
  * Scrape a single ad
  */
- module.exports.adScrape = async(ad) => {
+module.exports.adScrape = async(ad) => {
   let url = ad.url;
   let response = null;
   try {
@@ -132,7 +132,7 @@ const { formatMoneyNoDecimals } = require("./utils");
   ad.phone = ad.phone ? ad.phone.replace(/tel:/, "").trim() : undefined;
 
   return ad;
-}
+};
 
 /**
  * Compare old and new lists of ads
@@ -141,13 +141,13 @@ module.exports.adsCompare = (o, n) => {
   function comparer(other, key) {
     return current => {
       return other.filter(other => {
-        return other[key] === current[key]
+        return other[key] === current[key];
       }).length === 0;
-    }
+    };
   }
 
   //const onlyInO = o.filter(comparer(n)); // only in old array elements (removed from listings)
-  const onlyInN = n.filter(comparer(o, 'url')); // only in new array elements (added to listings)
+  const onlyInN = n.filter(comparer(o, "url")); // only in new array elements (added to listings)
 
   return onlyInN;
 };
@@ -218,7 +218,7 @@ module.exports.adsEmailBodyFormat = (adsList, searchParameters) => {
               <tr>
                 <td style="padding:30px;background-color:#ffffff;">
                   <p style="margin-top:0;margin-bottom:16px;text-decoration:none;">
-                    ${adsList.length} nuov${one ? 'o' : 'i'} annunc${one ? 'io' : 'i'} appena pubblicat${one ? 'o' : 'i'} su <b>immobiliare.it</b>
+                    ${adsList.length} nuov${one ? "o" : "i"} annunc${one ? "io" : "i"} appena pubblicat${one ? "o" : "i"} su <b>immobiliare.it</b>
                   </p>
                 </td>
               </tr>
@@ -245,7 +245,7 @@ module.exports.adsEmailBodyFormat = (adsList, searchParameters) => {
                     <p style="font-size:18px;margin-top:0;margin-bottom:4px;color:darkred">
                       <b><i>NON PIÚ PRESENTE!</i></b>
                     </p>
-                    ` : ``}
+                    ` : ""}
                     <p style="font-size:18px;margin-top:0;margin-bottom:4px;">
                       ${ad.titleStrict}${ad.city ? (", " + ad.city) : ""}
                     </p>
@@ -257,7 +257,7 @@ module.exports.adsEmailBodyFormat = (adsList, searchParameters) => {
                     </p>
                     <p style="font-size:14px;margin-top:0;margin-bottom:6px;">
                       ${ad.surface} m² |
-                      ${ad.rooms} local${ad.rooms <= 1 ? 'e' : 'i'}
+                      ${ad.rooms} local${ad.rooms <= 1 ? "e" : "i"}
                       ${ad.bathrooms ? " | " + ad.bathrooms + " bagn" + (ad.bathrooms <= 1 ? "o" : "i") : ""}
                       ${ad.floor ? " | " + "piano " + ad.floor : ""}
                     </p>
@@ -288,7 +288,7 @@ module.exports.adsEmailBodyFormat = (adsList, searchParameters) => {
                   <![endif]-->
                 </td>
               </tr>
-  `).join('');
+  `).join("");
   const foot = `
               <!-- end new ads loop here -->
               <tr>
@@ -313,7 +313,7 @@ module.exports.adsEmailBodyFormat = (adsList, searchParameters) => {
                   <p style="margin:0;font-size:14px;line-height:20px;">
                     ${config.companyTitle}
                     <br>
-                    <!--<a class="unsub" href="${/*config.endpointWebsite*/'REMOVEME'}unsubscribe.html" style="color:#cccccc;text-decoration:underline;">-->
+                    <!--<a class="unsub" href="${/*config.endpointWebsite*/"REMOVEME"}unsubscribe.html" style="color:#cccccc;text-decoration:underline;">-->
                     <a class="unsub" href="${config.endpoint}unsubscribe" style="color:#cccccc;text-decoration:underline;">
                       Annulla la sottoscrizione
                     </a>
@@ -335,21 +335,21 @@ module.exports.adsEmailBodyFormat = (adsList, searchParameters) => {
 };
 
 const adsDescribeSearch = (searchParameters) => {
-  let description = ``;
+  let description = "";
   switch (true) {
-    case /vendita-case/.test(searchParameters.baseUrl):
-      description += `Case in vendita`;
-      break;
-    case /affitto-case/.test(searchParameters.baseUrl):
-      description += `Case in affitto`;
-      break;
-    default:
-      description += `tipologia di ricerca sconosciuta`;
-    }
-    description += ` ${searchParameters.city ? "a " + searchParameters.city : "in città sconosciuta"}`;
-    description += `${searchParameters.zones.length <= 0 ? "" : (" " + (searchParameters.zones.length === 1 ? "nella zona" : "nelle zone") + " ")}${searchParameters.zones.map(zid => zid[Object.keys(zid)[0]]).join("; ").replace(/; $/, "").trim()}`;
-    description += `, da ${formatMoneyNoDecimals(searchParameters.minPrice, config.locale, config.currency)} a ${formatMoneyNoDecimals(searchParameters.maxPrice, config.locale, config.currency)}`;
-    description += `, da ${searchParameters.minSurfaceMq} m² a ${searchParameters.maxSurfaceMq} m²`;
-    description += `, con un criterio di ${searchParameters.criterion}`;
-    return description;
-}
+  case /vendita-case/.test(searchParameters.baseUrl):
+    description += "Case in vendita";
+    break;
+  case /affitto-case/.test(searchParameters.baseUrl):
+    description += "Case in affitto";
+    break;
+  default:
+    description += "tipologia di ricerca sconosciuta";
+  }
+  description += ` ${searchParameters.city ? "a " + searchParameters.city : "in città sconosciuta"}`;
+  description += `${searchParameters.zones.length <= 0 ? "" : (" " + (searchParameters.zones.length === 1 ? "nella zona" : "nelle zone") + " ")}${searchParameters.zones.map(zid => zid[Object.keys(zid)[0]]).join("; ").replace(/; $/, "").trim()}`;
+  description += `, da ${formatMoneyNoDecimals(searchParameters.minPrice, config.locale, config.currency)} a ${formatMoneyNoDecimals(searchParameters.maxPrice, config.locale, config.currency)}`;
+  description += `, da ${searchParameters.minSurfaceMq} m² a ${searchParameters.maxSurfaceMq} m²`;
+  description += `, con un criterio di ${searchParameters.criterion}`;
+  return description;
+};

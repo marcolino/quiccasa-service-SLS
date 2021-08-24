@@ -17,11 +17,11 @@ provider:
   profile: serverless
   stage: dev
   region: eu-west-1
-  apiGateway:
-    shouldStartNameWithService: true
-  tracing:
-    apiGateway: true
-    lambda: true
+  # apiGateway:
+  #   shouldStartNameWithService: true
+  # tracing:
+  #   apiGateway: true
+  #   lambda: true
 
   iam:
     role:
@@ -51,7 +51,7 @@ package:
 
 functions:
   unsubscribe:
-    handler: api.unsubscribe
+    handler: api/handler.unsubscribe
     memorySize: 128 # MB, default is 1024 MB
     timeout: 10 # seconds, default is 6 seconds
     description: Unsubscribe user from service subscription
@@ -59,16 +59,37 @@ functions:
       - http: 
           method: get
           path: unsubscribe
+          cors: true
 
-  handler: api.getUserByAttribute:
-    handler: api.getUserByAttribute
-    memorySize: 128 # MB, default is 1024 MB
-    timeout: 10 # seconds, default is 6 seconds
-    description: get Cognito user by attribute
-    events:
-      - http: 
-          method: get
-          path: getUserByAttribute
+  # getUserByAttribute:
+  #   handler: api/handler.getUserByAttribute
+  #   memorySize: 128 # MB, default is 1024 MB
+  #   timeout: 10 # seconds, default is 6 seconds
+  #   description: get Cognito user by attribute
+  #   events:
+  #     - http: 
+  #         method: get
+  #         path: getUserByAttribute
+
+  # getAWSWelcome:
+  #   handler: api/handler.getAWSWelcome
+  #   memorySize: 128 # MB, default is 1024 MB
+  #   timeout: 10 # seconds, default is 6 seconds
+  #   description: get AWS Welcome (test)
+  #   events:
+  #     - http: 
+  #         method: get
+  #         path: getAWSWelcome
+
+  # getS3ObjectWithPromiseExample:
+  #   handler: api/handler.getS3ObjectWithPromiseExample
+  #   memorySize: 128 # MB, default is 1024 MB
+  #   timeout: 10 # seconds, default is 6 seconds
+  #   description: get S3 Object With Promise Example
+  #   events:
+  #     - http: 
+  #         method: get
+  #         path: getS3ObjectWithPromiseExample
 
 plugins:
   - serverless-domain-manager
@@ -87,4 +108,6 @@ custom:
     createRoute53Record: true
 
   webpack:
-    includeModules: false
+    includeModules:
+      forceExclude:
+        - aws-sdk

@@ -13,6 +13,9 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
+    alias: {
+      Components: path.resolve(__dirname, 'api/components'), // the use `import MyComponent from "Components/MyComponent.js"`
+    },
   },
   output: {
     libraryTarget: 'commonjs2',

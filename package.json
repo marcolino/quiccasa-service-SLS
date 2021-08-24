@@ -1,19 +1,20 @@
 {
   "name": "quiccasa",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint index.js",
-    "deploy": "eslint api/*.js api/components/*.js && serverless deploy",
-    "deploy1": "eslint api/*.js api/components/*.js && serverless deploy --function",
-    "deploy:debug": "eslint api/*.js api/components/*.js && SLS_DEBUG=* serverless deploy",
-    "deploy1:debug": "eslint api/*.js api/components/*.js && SLS_DEBUG=* serverless deploy --function",
+    "lint": "eslint  api/*.js api/components/*.js",
+    "deploy": "yarn lint && serverless deploy",
+    "deploy1": "yarn lint && serverless deploy --function",
+    "deploy:debug": "yarn lint && SLS_DEBUG=* serverless deploy",
+    "deploy1:debug": "yarn lint && SLS_DEBUG=* serverless deploy --function",
     "invoke:local": "serverless invoke local --function",
     "invoke-unsubscribe:local": "serverless invoke local --function unsubscribe --data '{\"queryStringParameters\":{\"username\":\"marco\"}}'",
     "test:valid": "SLS_DEBUG=* serverless invoke --path test/valid.json --function",
     "test:invalid": "SLS_DEBUG=* serverless invoke --path test/invalid.json --function",
     "test-time": "curl -w '@tests/curl-test-time-format.txt' -s 'https://apidev.sistemisolari.com/unsubscribe?username=marco'",
-    "modclean": "modclean -n default:safe,default:caution -r"
+    "list-users": "aws cognito-idp list-users --user-pool-id eu-west-1_edKzSSeU9 --limit 1",
+    "delete-base-path-mapping": "aws apigateway delete-base-path-mapping --domain-name 'api.sistemisolari.com' --base-path 'dev'"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.5"

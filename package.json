@@ -1,6 +1,6 @@
 {
   "name": "quiccasa",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "license": "MIT",
   "scripts": {
     "lint": "eslint  api/*.js api/components/*.js",
@@ -14,7 +14,9 @@
     "test:invalid": "SLS_DEBUG=* serverless invoke --path test/invalid.json --function",
     "test-time": "curl -w '@tests/curl-test-time-format.txt' -s 'https://apidev.sistemisolari.com/unsubscribe?username=marco'",
     "list-users": "aws cognito-idp list-users --user-pool-id eu-west-1_edKzSSeU9 --limit 1",
-    "delete-base-path-mapping": "aws apigateway delete-base-path-mapping --domain-name 'api.sistemisolari.com' --base-path 'dev'"
+    "delete-base-path-mapping": "aws apigateway delete-base-path-mapping --domain-name 'api.sistemisolari.com' --base-path 'dev'",
+    "start-dynamodb:local": "/opt/dynamodb/start",
+    "test-dynamodb:local": "aws dynamodb list-tables --endpoint-url http://localhost:8001"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.5"

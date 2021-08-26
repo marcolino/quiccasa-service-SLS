@@ -1,34 +1,28 @@
 References:
 
-Intro to using Lambda with the Serverless framework
+Intro to using Lambda with the Serverless framework:
 https://www.thorntech.com/aws-tutorial-intro-using-lambda-serverless-framework/
 
-Send e-mails through AWS SES and Lambda
+Send e-mails through AWS SES and Lambda:
 https://dev.to/centrics/send-e-mails-through-aws-ses-and-lambda-17f2
 
-Deploy a static web application with serverless and codebuild
+Deploy a static web application with serverless and codebuild:
 https://shinesolutions.com/2019/08/15/deploying-a-static-web-application-with-serverless-and-codebuild/#the-end
 
-Create a secure static website for your registered domain name
+Create a secure static website for your registered domain name:
 https://github.com/aws-samples/amazon-cloudfront-secure-static-site#user-content-amazon-cloudfront-secure-static-website
 
-Build a Serverless Web Application
+Build a Serverless Web Application:
 https://aws.amazon.com/getting-started/hands-on/build-serverless-web-app-lambda-apigateway-s3-dynamodb-cognito/
 
 AWS Tutorial: Intro to using Lambda with the Serverless framework:
 https://www.thorntech.com/aws-tutorial-intro-using-lambda-serverless-framework/
 
-Routing traffic to an Amazon API Gateway API by using your domain name (no):
-https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-api-gateway.html
-
 How to set up a custom domain name for Lambda & API Gateway with Serverless:
 https://www.serverless.com/blog/serverless-api-gateway-domain
 
-Using Webpack 4 — A “really” quick start (no):
-https://medium.com/justfrontendthings/using-webpack-4-a-really-quick-start-under-4-minutes-61ff3fa9a2c8
-
-Serverless - Bundle Lambda Functions with Webpack Tree Shaking (no):
-https://www.antstack.io/blog/nodejs-lambda-bundling-tree-shaking-webpack/
-
 Optimise your Lambda functions using Webpack:
 https://serverlessfirst.com/fff-webpacking-lambdas/
+
+Getting Started with Node.js and DynamoDB:
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.NodeJs.html

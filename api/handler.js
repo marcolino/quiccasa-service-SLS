@@ -5,11 +5,7 @@
 
 const s3 = require("aws-sdk/clients/s3");
 const cognitoIdentityServiceProvider = require("aws-sdk/clients/cognitoidentityserviceprovider");
-const cognitoIdp =  new cognitoIdentityServiceProvider({apiVersion: "2016-04-18"});
-// const cognitoIdp = new AWS.CognitoIdentityServiceProvider({apiVersion: "2016-04-18"});
-// const s3 = new AWS.S3();
-//const https = require("https");
-
+const cognitoIdp = new cognitoIdentityServiceProvider({apiVersion: "2016-04-18"});
 const { httpJSONResponse } = require("./components/utils");
 
 module.exports.unsubscribe = async (event) => {
@@ -24,31 +20,32 @@ module.exports.unsubscribe = async (event) => {
   return httpJSONResponse(200, `You did successfully unsubscribe from ${serviceName}!`, event);
 };
 
-module.exports.getUserByAttribute = async (event, context, callback) => {
+module.exports.getUsersList = async (event, context, callback) => {
 
-  console.log("event:", event);
+  console.log("event:", event, typeof event);
   console.log("context:", context);
 
   const email = event.queryStringParameters.email;
   if (!email) {
-    return httpJSONResponse(400, "Email should be specified", event);
+    return httpJSONResponse(400, {error: "Email should be specified"}, event);
   }
 
-  const params = {
-    UserPoolId: process.env.COGNITO_USER_POOL_ID, //cognitoUserPoolId, //config.cognitoUserPoolId, //event.userPoolId,
-    Filter: `email = "${email}"`,
-  };
+  const params = {};
+  params.UserPoolId = "eu-west-1_edKzSSeU9"; //process.env.COGNITO_USER_POOL_ID, //cognitoUserPoolId, //config.cognitoUserPoolId, //event.userPoolId,
+  if (email !== "*") {
+    params.Filter = `email = "${email}"`;
+  }
+  console.log("params:", params);
 
-  cognitoIdp.listUsers(params).promise()
+  await cognitoIdp.listUsers(params).promise()
     .then (result => {
-      console.log("listUsers " + result.Users.length + " results:", JSON.stringify(result.Users));
-      callback(undefined, result.Users);
-      //httpJSONResponse(200, `Users:`, result.Users);
+      console.log("listUsers result:", result);
+      console.log("listUsers count:", result.Users.length);
+      callback(undefined, httpJSONResponse(200, result.Users, event));
     })
     .catch (error => {
       console.error("error:", error);
-      callback(error);
-      //httpJSONResponse(500, `ERROR:`, error); 
+      callback(httpJSONResponse(500, {error}, event));
     })
   ;
 };

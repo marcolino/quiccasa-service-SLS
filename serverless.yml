@@ -36,8 +36,12 @@ provider:
             - "s3:PutObject"
             - "s3:DeleteObject"
           Resource: { "Fn::Join": ["", ["arn:aws:s3:::", { "Ref": "ServerlessDeploymentBucket" }, "/*" ] ] }
+        - Effect: "Allow"
+          Action:
+            - "cognito-idp:ListUsers"
+          Resource: "*"
 
-# service wide environment variables
+        # service wide environment variables
 #environment:
 #  variable1: value1
 
@@ -61,15 +65,16 @@ functions:
           path: unsubscribe
           cors: true
 
-  # getUserByAttribute:
-  #   handler: api/handler.getUserByAttribute
-  #   memorySize: 128 # MB, default is 1024 MB
-  #   timeout: 10 # seconds, default is 6 seconds
-  #   description: get Cognito user by attribute
-  #   events:
-  #     - http: 
-  #         method: get
-  #         path: getUserByAttribute
+  getUsersList:
+    handler: api/handler.getUsersList
+    memorySize: 128 # MB, default is 1024 MB
+    timeout: 10 # seconds, default is 6 seconds
+    description: get Cognito user by attribute
+    events:
+      - http: 
+          method: get
+          path: getUsersList
+          cors: true
 
   # getAWSWelcome:
   #   handler: api/handler.getAWSWelcome

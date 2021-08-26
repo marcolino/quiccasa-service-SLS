@@ -2,22 +2,23 @@
 
 const config = require("../../config");
 
-module.exports.httpJSONResponse = (statusCode = 200, message = "", input = null, headers = {}) => {
+module.exports.httpJSONResponse = (statusCode = 200, data = {}, input = null, headers = {}) => {
   const jsonSpaces = 0;
 
-  console.log("process.env.STAGE:", process.env.STAGE);
+  process.env.STAGE && console.log("process.env.STAGE:", process.env.STAGE);
 
   return {
     statusCode,
     headers: {
       // TODO: do we really need this ?
-      "Access-Control-Allow-Origin": process.env.STAGE === "prod" ? config.AllowedOrigin : "*",
+      "Access-Control-Allow-Origin": process.env.STAGE === "prod" ? config.AllowedOrigin : "*", // required for CORS support to work
+      "Access-Control-Allow-Credentials": true, // required for cookies and authorization headers with HTTPS
       "Content-Type": "application/json",
       ...headers
     },
     body: JSON.stringify(
       {
-        message,
+        data,
         input,
       },
       null, // replacer

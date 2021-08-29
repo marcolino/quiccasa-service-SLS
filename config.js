@@ -1,3 +1,7 @@
+//const { config } = require("webpack");
+
+//console.log("process.env:", process.env);
+
 module.exports = {
   //service: process.env.service,
   //bucket: process.env.bucket,
@@ -21,5 +25,25 @@ module.exports = {
   //   dev: "https://apidev.sistemisolari.com",
   //   prod: "https://api.sistemisolari.com",
   // },
-  AllowedOrigin: "https://quiccasa.sistemisolari.com",
+  allowedOrigin: "https://quiccasa.sistemisolari.com",
+  db: {
+    local: {
+      host: process.env.DB_LOCAL_HOST, //"localhost",
+      port: process.env.DB_LOCAL_PORT, //3306,
+      user: process.env.DB_LOCAL_USER, //"root",
+      pass: process.env.DB_LOCAL_PASS, //"******",
+      name: process.env.DB_LOCAL_NAME, //"quiccasa",
+      connectionLimit: 10,
+      queueLimit: 0,
+    },
+    remote: {
+      connectionLimit: 10,
+      queueLimit: 0,
+    }
+
+    // DynamoDB
+    // region: "eu-west-1",
+    // endpointDevelopment: "http://localhost:8001",
+    // endpointProduction: "https://dynamodb.eu-west-1.amazonaws.com",
+  },
 };

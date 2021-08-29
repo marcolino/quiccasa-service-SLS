@@ -4,7 +4,7 @@ app: quiccasa-service
 #org: sistemisolarirossi
 
 # only deploy with a specific Serverless version
-frameworkVersion: '2'
+frameworkVersion: "2"
 
 useDotenv: true
 
@@ -22,6 +22,23 @@ provider:
   # tracing:
   #   apiGateway: true
   #   lambda: true
+
+  vpc:
+    securityGroupIds:
+      - sg-0f0041d014678c4d0
+# VPC security group
+#      - sg-dbc46487
+# default security group
+    subnetIds:
+      - subnet-ae3362f4
+      - subnet-8f3521e9
+      - subnet-26bf586d
+  environment:
+    MYSQL_HOST: "quiccasa.cimqtrmgyukk.eu-west-1.rds.amazonaws.com"
+    MYSQL_PORT: "3306"
+    MYSQL_USER: "admin"
+    MYSQL_PASS: "c_8G6+Q3xxLp8"
+    MYSQL_NAME: "quiccasa"
 
   iam:
     role:
@@ -54,8 +71,47 @@ package:
     #- '!node_modules/**'
 
 functions:
+  dbok:
+    handler: api/handler.dbok
+    memorySize: 1024 # MB, default is 1024 MB
+    timeout: 5 # seconds, default is 6 seconds
+    description: Test db in prod
+    events:
+      - http:
+          method: get
+          path: dbok
+          cors: true
+    tags: 
+      project: ${self:service}
+
+  dbSetup:
+    handler: api/handler.dbSetup
+    memorySize: 1024 # MB, default is 1024 MB
+    timeout: 4 # seconds, default is 6 seconds
+    description: Test db
+    events:
+      - http:
+          method: get
+          path: dbSetup
+          cors: true
+    tags: 
+      project: ${self:service}
+
+  dbTest:
+    handler: api/handler.dbTest
+    memorySize: 1024 # MB, default is 1024 MB
+    timeout: 7 # seconds, default is 6 seconds
+    description: Test db
+    events:
+      - http: 
+          method: get
+          path: dbTest
+          cors: true
+    tags: 
+      project: ${self:service}
+
   unsubscribe:
-    handler: api/handler.unsubscribe
+    handler: api/unsubscribe
     memorySize: 128 # MB, default is 1024 MB
     timeout: 10 # seconds, default is 6 seconds
     description: Unsubscribe user from service subscription
@@ -96,8 +152,27 @@ functions:
   #         method: get
   #         path: getS3ObjectWithPromiseExample
 
+resources:
+  Resources:
+    AWSLambdaVPCAccessExecutionRole:
+      Type: AWS::IAM::ManagedPolicy
+      Properties:
+        Description: Creating policy for vpc connetion.
+        Roles:
+          - {"Ref" : "IamRoleLambdaExecution"}
+        PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+                - ec2:CreateNetworkInterface
+                - ec2:DescribeNetworkInterfaces
+                - ec2:DeleteNetworkInterface
+              Resource: "*"
+
 plugins:
   - serverless-domain-manager
+  # use webpack only while deployng remotely
   - serverless-webpack
 
 custom:
@@ -106,8 +181,7 @@ custom:
     dev: apidev.sistemisolari.com
     prod: api.sistemisolari.com
   customDomain:
-   #domainName: api.sistemisolari.com
-    domainName:  ${self:custom.domain.${self:provider.stage}}
+    domainName: ${self:custom.domain.${self:provider.stage}}
     basePath: "v${self:custom.version}"
     stage: ${self:provider.stage}
     createRoute53Record: true
@@ -116,3 +190,4 @@ custom:
     includeModules:
       forceExclude:
         - aws-sdk
+        - pnpapi

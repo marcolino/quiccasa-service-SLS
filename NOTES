@@ -26,3 +26,12 @@ https://serverlessfirst.com/fff-webpacking-lambdas/
 
 Getting Started with Node.js and DynamoDB:
 https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GettingStarted.NodeJs.html
+
+AWS Serverless to MySQL:
+https://medium.com/@hk_it_er/create-rds-mysql-aws-serverless-to-mysql-699a27dfd14a
+
+How to Access your RDS Database with Lambda Function and Serverless:
+https://medium.com/@antonio.cm.oliveira/how-to-access-your-rds-database-with-lambda-function-and-serverless-b7712dde9f80
+
+Can't connect to MySQL server in lambda:
+https://stackoverflow.com/questions/54785492/cant-connect-to-mysql-server-in-lambda

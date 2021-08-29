@@ -11,7 +11,7 @@ module.exports.httpJSONResponse = (statusCode = 200, data = {}, input = null, he
     statusCode,
     headers: {
       // TODO: do we really need this ?
-      "Access-Control-Allow-Origin": process.env.STAGE === "prod" ? config.AllowedOrigin : "*", // required for CORS support to work
+      "Access-Control-Allow-Origin": process.env.STAGE === "prod" ? config.allowedOrigin : "*", // required for CORS support to work
       "Access-Control-Allow-Credentials": true, // required for cookies and authorization headers with HTTPS
       "Content-Type": "application/json",
       ...headers

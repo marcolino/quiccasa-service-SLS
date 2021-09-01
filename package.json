@@ -1,6 +1,6 @@
 {
   "name": "quiccasa",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "license": "MIT",
   "scripts": {
     "lint": "eslint  api/*.js api/components/*.js",
@@ -16,6 +16,7 @@
     "test-time": "curl -w '@tests/curl-test-time-format.txt' -s 'https://apidev.sistemisolari.com/unsubscribe?username=marco'",
     "list-users": "aws cognito-idp list-users --user-pool-id eu-west-1_edKzSSeU9 --limit 1",
     "delete-base-path-mapping": "aws apigateway delete-base-path-mapping --domain-name 'api.sistemisolari.com' --base-path 'dev'",
+    "refresh-security-group-rule": "aws ec2 authorize-security-group-ingress --group-id sg-0f0041d014678c4d0 --protocol tcp --port 3306 --cidr `curl -s ifconfig.me`/32",
     "NO start-dynamodb": "# noop, AWS handles  it... :-)",
     "NO edit-dynamodb": "(xdg-open https://eu-west-1.console.aws.amazon.com/dynamodbv2/home?region=eu-west-1#tables &)",
     "NO list-tables-dynamodb": "aws dynamodb list-tables --endpoint-url https://dynamodb.eu-west-1.amazonaws.com",
@@ -29,6 +30,7 @@
     "serverless-mysql": "^1.5.4"
   },
   "devDependencies": {
+    "dotenv-webpack": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-plugin-react": "^7.24.0",
     "pnpapi": "^0.0.0",

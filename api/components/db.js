@@ -1,27 +1,25 @@
 "use strict";
 
 const db = require("mysql2/promise");
-const config = require("../../config");
+//const config = require("../../config");
 
 class DB {
   constructor() {
     //this.con = this.createConnection();
   }
 
-  async connect() {
+  async connect(/*event, context*/) {
+    //context.callbackWaitsForEmptyEventLoop = false;
     const local = !process.env.AWS_EXECUTION_ENV; // this variable should be set only on AWS... - TODO ...
     console.log("IS_LOCAL:", local);
-    console.log("config.db:", config.db);
     try {
       this.con = await db.createConnection({
-        // TODO: put local constants to config.js
-        host: local ? config.db.local.host : process.env.MYSQL_HOST,
-        port: local ? config.db.local.port : process.env.MYSQL_PORT,
-        user: local ? config.db.local.user : process.env.MYSQL_USER,
-        password: local ? config.db.local.pass : process.env.MYSQL_PASS,
-        database: local ? config.db.local.name : process.env.MYSQL_NAME,
-        //connectionLimit: local ? config.db.local.connectionLimit : config.db.remote.connectionLimit,
-        //queueLimit: local ? config.db.local.queueLimit : config.db.remote.queueLimit,
+        host: local ? process.env.MYSQL_HOST_DEV : process.env.MYSQL_HOST,
+        port: local ? process.env.MYSQL_PORT_DEV : process.env.MYSQL_PORT,
+        user: local ? process.env.MYSQL_USER_DEV : process.env.MYSQL_USER,
+        password: local ? process.env.MYSQL_PASS_DEV : process.env.MYSQL_PASS,
+        database: local ? process.env.MYSQL_NAME_DEV : process.env.MYSQL_NAME,
+        //debug: false,
       });
     } catch(err) {
       console.error("connect error:", err);

@@ -6,3 +6,6 @@ node_modules
 
 # private directories
 private
+
+# environment
+.env

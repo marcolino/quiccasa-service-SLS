@@ -33,5 +33,8 @@ https://medium.com/@hk_it_er/create-rds-mysql-aws-serverless-to-mysql-699a27dfd1
 How to Access your RDS Database with Lambda Function and Serverless:
 https://medium.com/@antonio.cm.oliveira/how-to-access-your-rds-database-with-lambda-function-and-serverless-b7712dde9f80
 
-Can't connect to MySQL server in lambda:
-https://stackoverflow.com/questions/54785492/cant-connect-to-mysql-server-in-lambda
+Why my Lambda cannot access Internet anymore from its AWS VPC?
+https://blog.theodo.com/2020/01/internet-access-to-lambda-in-vpc/
+
+How to pass .env file variables to webpack config?
+https://stackoverflow.com/questions/46224986/how-to-pass-env-file-variables-to-webpack-config

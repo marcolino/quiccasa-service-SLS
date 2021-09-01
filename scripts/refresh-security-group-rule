@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# Refresh AWS security group rules using current public IP
+
+groupId="sg-0f0041d014678c4d0"
+ruleProtocol="tcp"
+rulePort="3306"
+cidr="`curl -s ifconfig.me`/32" # get current public IP
+
+# get ip permissions
+ipPermissions="`aws ec2 describe-security-groups --output json --group-ids "$groupId" --query "SecurityGroups[0].IpPermissions"`"
+
+if [ "$ipPermissions" != "[]" ]; then
+  # revoke security group rules, if any
+  aws ec2 revoke-security-group-ingress --group-id "$groupId" --ip-permissions "$ipPermissions"
+fi
+
+# authorize new security group rule
+aws ec2 authorize-security-group-ingress --group-id "$groupId" --protocol "$ruleProtocol" --port "$rulePort" --cidr "$cidr"

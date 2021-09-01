@@ -26,19 +26,21 @@ provider:
   vpc:
     securityGroupIds:
       - sg-0f0041d014678c4d0
-# VPC security group
-#      - sg-dbc46487
-# default security group
     subnetIds:
       - subnet-ae3362f4
       - subnet-8f3521e9
       - subnet-26bf586d
   environment:
-    MYSQL_HOST: "quiccasa.cimqtrmgyukk.eu-west-1.rds.amazonaws.com"
-    MYSQL_PORT: "3306"
-    MYSQL_USER: "admin"
-    MYSQL_PASS: "c_8G6+Q3xxLp8"
-    MYSQL_NAME: "quiccasa"
+    #MYSQL_HOST: "quiccasa.cimqtrmgyukk.eu-west-1.rds.amazonaws.com"
+    #MYSQL_PORT: "3306"
+    #MYSQL_USER: "admin"
+    #MYSQL_PASS: "c_8G6+Q3xxLp8"
+    #MYSQL_NAME: "quiccasa"
+    MYSQL_HOST_DEV: "localhost"
+    MYSQL_PORT_DEV: "3306"
+    MYSQL_USER_DEV: "root"
+    MYSQL_PASS_DEV: "malipa"
+    MYSQL_NAME_DEV: "quiccasa"
 
   iam:
     role:
@@ -71,21 +73,8 @@ package:
     #- '!node_modules/**'
 
 functions:
-  dbok:
-    handler: api/handler.dbok
-    memorySize: 1024 # MB, default is 1024 MB
-    timeout: 5 # seconds, default is 6 seconds
-    description: Test db in prod
-    events:
-      - http:
-          method: get
-          path: dbok
-          cors: true
-    tags: 
-      project: ${self:service}
-
   dbSetup:
-    handler: api/handler.dbSetup
+    handler: api/dbSetup.dbSetup
     memorySize: 1024 # MB, default is 1024 MB
     timeout: 4 # seconds, default is 6 seconds
     description: Test db
@@ -111,7 +100,7 @@ functions:
       project: ${self:service}
 
   unsubscribe:
-    handler: api/unsubscribe
+    handler: api/unsubscribe.unsubscribe
     memorySize: 128 # MB, default is 1024 MB
     timeout: 10 # seconds, default is 6 seconds
     description: Unsubscribe user from service subscription
@@ -120,17 +109,21 @@ functions:
           method: get
           path: unsubscribe
           cors: true
+    tags: 
+      project: ${self:service}
 
   getUsersList:
-    handler: api/handler.getUsersList
+    handler: api/getUsersList.getUsersList
     memorySize: 128 # MB, default is 1024 MB
-    timeout: 10 # seconds, default is 6 seconds
+    timeout: 5 # seconds, default is 6 seconds
     description: get Cognito user by attribute
     events:
       - http: 
           method: get
           path: getUsersList
-          cors: true
+#          cors: true
+    tags: 
+      project: ${self:service}
 
   # getAWSWelcome:
   #   handler: api/handler.getAWSWelcome
@@ -141,16 +134,20 @@ functions:
   #     - http: 
   #         method: get
   #         path: getAWSWelcome
+  #   tags: 
+  #     project: ${self:service}
 
-  # getS3ObjectWithPromiseExample:
-  #   handler: api/handler.getS3ObjectWithPromiseExample
-  #   memorySize: 128 # MB, default is 1024 MB
-  #   timeout: 10 # seconds, default is 6 seconds
-  #   description: get S3 Object With Promise Example
-  #   events:
-  #     - http: 
-  #         method: get
-  #         path: getS3ObjectWithPromiseExample
+  getS3ObjectWithPromiseExample:
+    handler: api/handler.getS3ObjectWithPromiseExample
+    memorySize: 128 # MB, default is 1024 MB
+    timeout: 10 # seconds, default is 6 seconds
+    description: get S3 Object With Promise Example
+    events:
+      - http: 
+          method: get
+          path: getS3ObjectWithPromiseExample
+    tags: 
+      project: ${self:service}
 
 resources:
   Resources:
